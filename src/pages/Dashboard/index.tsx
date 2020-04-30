@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import React, { useState, useEffect } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
@@ -35,7 +36,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO
+      try {
+        const { data } = await api.get('/products');
+        setProducts(data);
+      } catch (err) {
+        console.log(err);
+      }
     }
 
     loadProducts();
