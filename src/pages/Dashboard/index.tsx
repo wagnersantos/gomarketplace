@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import FeatherIcon from 'react-native-vector-icons/Feather';
 
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
 
 import formatValue from '../../utils/formatValue';
 import { useCart } from '../../hooks/cart';
@@ -48,7 +48,13 @@ const Dashboard: React.FC = () => {
   }, []);
 
   function handleAddToCart(item: Product): void {
-    // TODO
+    addToCart({
+      id: item.id,
+      image_url: item.image_url,
+      price: item.price,
+      title: item.title,
+      quantity: 1,
+    });
   }
 
   return (
