@@ -30,43 +30,54 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      const productsLocal = await AsyncStorage.getItem('@products');
-      const parsedProducts = JSON.parse(productsLocal);
+      const productsLocal = await AsyncStorage.getItem('@GMP:products');
+      const parsedProducts = productsLocal ? JSON.parse(productsLocal) : [];
       setProducts(parsedProducts);
     }
 
     loadProducts();
   }, []);
 
-  console.log('products', products);
-
   const addToCart = useCallback(
-    async product => {
-      if (products.length === 0) {
-        setProducts([product]);
-        await AsyncStorage.setItem('@products', JSON.stringify([product]));
+    async (product: Product) => {
+      const productIndex = products.findIndex(item => item.id === product.id);
+
+      if (productIndex === -1) {
+        const obj = [
+          ...products,
+          {
+            ...product,
+            quantity: 1,
+          },
+        ];
+        setProducts(obj);
+        await AsyncStorage.setItem('@GMP:products', JSON.stringify(obj));
+
         return;
       }
 
-      const item = products.find(x => x.id === product.id);
-      if (item) {
-        // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        increment(item.id);
-        return;
-      }
+      const incrementProducts = products.map(item => {
+        if (item.id === product.id) {
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      });
 
-      setProducts([...products, product]);
+      setProducts(incrementProducts);
       await AsyncStorage.setItem(
-        '@products',
-        JSON.stringify([...products, product]),
+        '@GMP:products',
+        JSON.stringify(incrementProducts),
       );
     },
-    [increment, products],
+    [products],
   );
 
   const increment = useCallback(
     async id => {
-      const data = products.map(item => {
+      const incrementProduct = products.map(item => {
         if (item.id === id) {
           return {
             ...item,
@@ -75,15 +86,19 @@ const CartProvider: React.FC = ({ children }) => {
         }
         return item;
       });
-      setProducts(data);
-      await AsyncStorage.setItem('@products', JSON.stringify(data));
+
+      setProducts(incrementProduct);
+      await AsyncStorage.setItem(
+        '@GMP:products',
+        JSON.stringify(incrementProduct),
+      );
     },
     [products],
   );
 
   const decrement = useCallback(
     async id => {
-      const data = products.map(item => {
+      const decrementProduct = products.map(item => {
         if (item.id === id) {
           return {
             ...item,
@@ -92,8 +107,11 @@ const CartProvider: React.FC = ({ children }) => {
         }
         return item;
       });
-      setProducts(data);
-      await AsyncStorage.setItem('@products', JSON.stringify(data));
+      setProducts(decrementProduct);
+      await AsyncStorage.setItem(
+        '@GMP:products',
+        JSON.stringify(decrementProduct),
+      );
     },
     [products],
   );
