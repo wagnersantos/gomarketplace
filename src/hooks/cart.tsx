@@ -42,6 +42,7 @@ const CartProvider: React.FC = ({ children }) => {
     async product => {
       if (products.length === 0) {
         setProducts([product]);
+        await AsyncStorage.setItem('@products', JSON.stringify([product]));
         return;
       }
 
@@ -53,13 +54,17 @@ const CartProvider: React.FC = ({ children }) => {
       }
 
       setProducts([...products, product]);
+      await AsyncStorage.setItem(
+        '@products',
+        JSON.stringify([...products, product]),
+      );
     },
     [increment, products],
   );
 
-  const increment = useCallback(async id => {
-    setProducts(prevState => {
-      return prevState.map(item => {
+  const increment = useCallback(
+    async id => {
+      const data = products.map(item => {
         if (item.id === id) {
           return {
             ...item,
@@ -68,12 +73,15 @@ const CartProvider: React.FC = ({ children }) => {
         }
         return item;
       });
-    });
-  }, []);
+      setProducts(data);
+      await AsyncStorage.setItem('@products', JSON.stringify(data));
+    },
+    [products],
+  );
 
-  const decrement = useCallback(async id => {
-    setProducts(prevState => {
-      return prevState.map(item => {
+  const decrement = useCallback(
+    async id => {
+      const data = products.map(item => {
         if (item.id === id) {
           return {
             ...item,
@@ -82,8 +90,11 @@ const CartProvider: React.FC = ({ children }) => {
         }
         return item;
       });
-    });
-  }, []);
+      setProducts(data);
+      await AsyncStorage.setItem('@products', JSON.stringify(data));
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),
