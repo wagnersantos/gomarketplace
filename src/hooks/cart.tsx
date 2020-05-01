@@ -30,7 +30,9 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const productsLocal = await AsyncStorage.getItem('@products');
+      const parsedProducts = JSON.parse(productsLocal);
+      setProducts(parsedProducts);
     }
 
     loadProducts();
