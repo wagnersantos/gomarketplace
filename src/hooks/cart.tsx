@@ -46,23 +46,29 @@ const CartProvider: React.FC = ({ children }) => {
       }
 
       const item = products.find(x => x.id === product.id);
-      if (item && products.length > 1) {
-        setProducts([...products, { ...item, quantity: item.quantity + 1 }]);
-        return;
-      }
-
-      if (item && products.length === 1) {
-        setProducts([{ ...item, quantity: item.quantity + 1 }]);
+      if (item) {
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
+        increment(item.id);
         return;
       }
 
       setProducts([...products, product]);
     },
-    [products],
+    [increment, products],
   );
 
   const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
+    setProducts(prevState => {
+      return prevState.map(item => {
+        if (item.id === id) {
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      });
+    });
   }, []);
 
   const decrement = useCallback(async id => {
